@@ -3,7 +3,7 @@
 Community compatibility toolkit for running Mosaic Palette 2 / 2S / 2S Pro with
 CANVAS on a modern OctoPrint installation.
 
-> **Status:** early community release / known-good scaffold.
+> **Status:** early community release.
 >
 > The initial target is the setup validated on **OctoPrint 1.11.8**, **Python
 > 3.11**, and OctoPi in September 2026. Mosaic's original plugins are much older,
@@ -18,7 +18,7 @@ CANVAS on a modern OctoPrint installation.
 2. Creates a timestamped backup of the current OctoPrint configuration.
 3. Downloads Mosaic's final Palette 2 and CANVAS plugin releases.
 4. Applies modern-Python dependency fixes.
-5. Installs the known-good paho-mqtt 2.1.0 dependency used by CANVAS.
+5. Installs the tested paho-mqtt 2.1.0 dependency used by CANVAS.
 6. Installs the patched plugins into OctoPrint's own virtualenv.
 7. Optionally installs the custom CANVAS thumbnail and theme-compat plugins
    when their source trees are present in `plugins/`.
@@ -37,7 +37,7 @@ These are downloaded from Mosaic's GitLab repositories during installation.
 ## Quick start
 
 ```bash
-git clone <YOUR-REPO-URL>
+git clone https://github.com/Pup-Saturn/palette2-octoprint-2026.git
 cd palette2-octoprint-2026
 chmod +x install.sh scripts/*.sh
 ./scripts/audit-current.sh
@@ -56,29 +56,6 @@ Override it if necessary:
 ```bash
 sudo OCTOPRINT_VENV=/path/to/oprint ./install.sh
 ```
-
-## Before publishing the first release
-
-On the known-good machine, run:
-
-```bash
-./scripts/capture-working-install.sh
-```
-
-That script collects the **custom source code only** for the CANVAS thumbnail
-plugin and the Saturn/CANVAS theme compatibility plugin into `captured/`, while
-explicitly refusing to copy `.env`, API keys, logs, uploads, timelapses, or the
-full OctoPrint config.
-
-Review the captured files, then move the reusable plugin source into:
-
-```text
-plugins/canvas-thumbnails/
-plugins/canvas-theme-compat/
-```
-
-The installer will automatically install either directory when it contains a
-`setup.py` or `pyproject.toml`.
 
 ## Repository layout
 
@@ -155,7 +132,7 @@ CANVAS:
 
 CANVAS still uses paho-mqtt's legacy Callback API v1. paho-mqtt 2.1.0 retains
 that API for compatibility and emits only a deprecation warning. Testing on the
-known-good 2026 installation confirmed that Mosaic's original MQTT constructor
+tested 2026 configuration confirmed that Mosaic's original MQTT constructor
 continues to connect successfully, so the installer deliberately leaves
 CANVAS's MQTT source unchanged.
 
@@ -174,7 +151,7 @@ OctoPrint restart.
 
 ## Thumbnail support
 
-The known-good setup also contains a custom OctoPrint plugin that generates
+The project includes a custom OctoPrint plugin that generates
 CANVAS-compatible thumbnails for uploaded G-code. Its source should live at:
 
 ```text
@@ -186,8 +163,7 @@ package name `octoprint_canvasthumbnails`.
 
 ## CANVAS theme compatibility
 
-CANVAS's UI skin predates several generations of OctoPrint UI changes. The
-known-good machine has a compatibility layer that fixes stale blue/green
+CANVAS's UI skin predates several generations of OctoPrint UI changes. The project includes a compatibility layer that fixes stale blue/green
 holdouts and current settings-dialog selectors.
 
 Its reusable source should live at:
