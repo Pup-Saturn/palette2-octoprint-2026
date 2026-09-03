@@ -38,11 +38,75 @@ print("OK: ruamel.yaml import")
 PY
 
 if [[ -f "$LOG" ]]; then
+    RECENT_LOG="$(mktemp)"
+    trap 'rm -f "$RECENT_LOG"' EXIT
+
+    tail -500 "$LOG" > "$RECENT_LOG"
+
     echo
-    echo "=== RECENT LOAD ERRORS ==="
-    if tail -500 "$LOG" | grep -Ei 'palette2|canvas|ModuleNotFoundError|ImportError|Traceback' | tail -80; then
-        :
+    echo "=== PLUGIN HEALTH ==="
+
+    if grep -Fq "successfully connected to canvas" "$RECENT_LOG"; then
+        echo "OK: CANVAS MQTT connected"
+    else
+        echo "WARN: CANVAS MQTT connection confirmation not found"
     fi
+
+    if grep -Fq "done initializing canvas" "$RECENT_LOG"; then
+        echo "OK: CANVAS initialization completed"
+    else
+        echo "WARN: CANVAS initialization completion not found"
+    fi
+
+    if grep -Fq "Saturn CANVAS Theme loaded" "$RECENT_LOG"; then
+        echo "OK: CANVAS theme compatibility plugin loaded"
+    else
+        echo "WARN: CANVAS theme load confirmation not found"
+    fi
+
+    if grep -Eq 'Palette 2 \(3\.0\.1\)|octoprint_palette2|palette-2 .*INFO' "$RECENT_LOG"; then
+        echo "OK: Palette 2 plugin activity detected"
+    else
+        echo "WARN: Palette 2 activity not found"
+    fi
+
+    echo
+    echo "=== PALETTE / CANVAS ERRORS ==="
+
+    ERRORS="$(
+        grep -Ei \
+            'octoprint\.plugins\.(canvas|palette2).*(ERROR|CRITICAL)|Traceback|ModuleNotFoundError|ImportError' \
+            "$RECENT_LOG" \
+        | grep -Eiv \
+            'octoprint\.plugins\.canvas - CRITICAL - (Linux|Python|OctoPrint):? ' \
+        || true
+    )"
+
+    if [[ -n "$ERRORS" ]]; then
+        printf '%s\n' "$ERRORS" | tail -40
+    else
+        echo "OK: no Palette/CANVAS runtime errors detected"
+    fi
+
+    echo
+    echo "=== FUTURE COMPATIBILITY ==="
+
+    if grep -Eq \
+        'octoprint\.plugins\.(canvas|palette2).*autoescaping' \
+        "$RECENT_LOG"; then
+        echo "WARN: Palette/CANVAS template autoescaping needs review before OctoPrint 1.13"
+    else
+        echo "OK: no Palette/CANVAS autoescaping warning detected"
+    fi
+
+    if grep -Eq \
+        'octoprint\.plugins\.(canvas|palette2).*is_api_protected' \
+        "$RECENT_LOG"; then
+        echo "WARN: Palette/CANVAS API protection declarations need review before a future OctoPrint release"
+    else
+        echo "OK: no Palette/CANVAS API-protection warning detected"
+    fi
+
 else
     echo
     echo "Log not found at $LOG; skipped log scan."

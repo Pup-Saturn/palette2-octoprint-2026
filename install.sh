@@ -195,6 +195,26 @@ replace_requirements(canvas, [
     "paho-mqtt==2.1.0",
     "dictdiffer==0.10.0",
 ])
+
+canvas_init = canvas.parent / "octoprint_canvas" / "__init__.py"
+canvas_text = canvas_init.read_text()
+
+old_init = "        self.initialized = False\n"
+new_init = "        self.initialized = False\n        self.canvas = None\n"
+
+if old_init not in canvas_text:
+    raise SystemExit(f"Could not locate CanvasPlugin initialization marker in {canvas_init}")
+
+canvas_text = canvas_text.replace(old_init, new_init, 1)
+
+old_platform = "platform.linux_distribution()"
+new_platform = "platform.freedesktop_os_release()"
+
+if old_platform not in canvas_text:
+    raise SystemExit(f"Could not locate legacy linux_distribution call in {canvas_init}")
+
+canvas_text = canvas_text.replace(old_platform, new_platform, 1)
+canvas_init.write_text(canvas_text)
 PY
 
 say "Using CANVAS legacy MQTT callback API"
