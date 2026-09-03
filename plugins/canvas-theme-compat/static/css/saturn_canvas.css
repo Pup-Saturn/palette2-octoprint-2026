@@ -1,0 +1,189 @@
+/*
+ * Saturn CANVAS Theme
+ *
+ * Compatibility/customization layer for:
+ *   OctoPrint 1.11.x
+ *   Mosaic CANVAS 3.0.x
+ *
+ * CANVAS colors:
+ *   Primary:       #1dbc94
+ *   Primary hover: #17a078
+ */
+
+
+/* ============================================================
+   PRIMARY BUTTONS
+   ============================================================ */
+
+.btn-primary,
+button.btn-primary,
+input.btn-primary {
+    background: #1dbc94 !important;
+    background-image: none !important;
+    border-color: #1dbc94 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    border-radius: 3px !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+button.btn-primary:hover,
+button.btn-primary:focus,
+button.btn-primary:active {
+    background: #17a078 !important;
+    background-image: none !important;
+    border-color: #17a078 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   LOGIN / AUTHENTICATION
+   ============================================================ */
+
+#login_button,
+#login_button.btn,
+#login_button.btn-primary {
+    background: #1dbc94 !important;
+    background-image: none !important;
+    border-color: #1dbc94 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+#login_button:hover,
+#login_button:focus,
+#login_button:active {
+    background: #17a078 !important;
+    background-image: none !important;
+    border-color: #17a078 !important;
+    color: #ffffff !important;
+}
+
+
+/* TOTP / two-factor authentication dialogs */
+.modal .btn-primary,
+.modal-footer .btn-primary,
+form .btn-primary {
+    background: #1dbc94 !important;
+    background-image: none !important;
+    border-color: #1dbc94 !important;
+    color: #ffffff !important;
+}
+
+.modal .btn-primary:hover,
+.modal .btn-primary:focus,
+.modal-footer .btn-primary:hover,
+.modal-footer .btn-primary:focus,
+form .btn-primary:hover,
+form .btn-primary:focus {
+    background: #17a078 !important;
+    background-image: none !important;
+    border-color: #17a078 !important;
+    color: #ffffff !important;
+}
+
+
+/* ============================================================
+   DROPDOWN MENUS
+   ============================================================ */
+
+/*
+ * Bootstrap's stock blue selection clashes with CANVAS's green
+ * text. Use a subtle CANVAS-colored highlight instead.
+ */
+
+.dropdown-menu > li > a {
+    color: #17a078 !important;
+    background-image: none !important;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus,
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
+    color: #ffffff !important;
+    background: #17a078 !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+    background-color: rgba(29, 188, 148, 0.10);
+}
+
+
+/* ============================================================
+   CANVAS / OCTOPRINT 1.11 LOGO COMPATIBILITY
+   ============================================================ */
+
+/*
+ * Old CANVAS targets ".brand span", but OctoPrint 1.11 also uses
+ * "brand" on the footer version list. Ensure footer versions
+ * never inherit the Mosaic background.
+ */
+
+#footer_version span {
+    background-image: none !important;
+}
+
+
+/* ============================================================
+   GENERAL FOCUS STATE
+   ============================================================ */
+
+a:focus,
+button:focus,
+.btn:focus {
+    outline-color: #17a078;
+}
+
+/* ============================================================
+   USER SETTINGS / NAV PILLS
+   ============================================================ */
+
+/* Normal pill/tab links */
+.nav-pills > li > a,
+.nav-tabs > li > a {
+    color: #17a078 !important;
+    background-image: none !important;
+}
+
+/* Hover/focus */
+.nav-pills > li > a:hover,
+.nav-pills > li > a:focus,
+.nav-tabs > li > a:hover,
+.nav-tabs > li > a:focus {
+    color: #ffffff !important;
+    background: #17a078 !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+
+/* Active/current selection */
+.nav-pills > .active > a,
+.nav-pills > .active > a:hover,
+.nav-pills > .active > a:focus,
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover,
+.nav-tabs > .active > a:focus {
+    color: #ffffff !important;
+    background: #1dbc94 !important;
+    background-image: none !important;
+    border-color: #1dbc94 !important;
+    text-shadow: none !important;
+}

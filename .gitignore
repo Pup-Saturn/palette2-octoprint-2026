@@ -1,0 +1,32 @@
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.*
+config.yaml
+
+# Captured machine state must be reviewed before intentional inclusion.
+captured/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Logs/backups
+*.log
+*.tar.gz
