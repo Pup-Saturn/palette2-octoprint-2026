@@ -41,6 +41,7 @@ git clone <YOUR-REPO-URL>
 cd palette2-octoprint-2026
 chmod +x install.sh scripts/*.sh
 ./scripts/audit-current.sh
+./install.sh --check
 sudo ./install.sh
 ```
 
@@ -130,27 +131,46 @@ requirements before installation.
 Palette 2:
 
 ```python
-["ruamel.yaml", "python-dotenv", "six"]
+[
+    "ruamel.yaml==0.19.1",
+    "python-dotenv==1.2.3",
+    "six==1.17.0",
+]
 ```
 
 CANVAS:
 
 ```python
 [
-    "ruamel.yaml",
-    "python-dotenv",
-    "AWSIoTPythonSDK",
-    "pyjwt",
-    "paho-mqtt>=2,<3",
-    "dictdiffer",
+    "ruamel.yaml==0.19.1",
+    "python-dotenv==1.2.3",
+    "AWSIoTPythonSDK==1.6.1",
+    "PyJWT==2.13.0",
+    "paho-mqtt==2.1.0",
+    "dictdiffer==0.10.0",
 ]
 ```
 
 ### CANVAS + paho-mqtt 2.x
 
 CANVAS still uses paho-mqtt's legacy Callback API v1. paho-mqtt 2.1.0 retains
-that API for compatibility and emits only a deprecation warning. The known-good
-2026 installation therefore leaves Mosaic's MQTT source unchanged.
+that API for compatibility and emits only a deprecation warning. Testing on the
+known-good 2026 installation confirmed that Mosaic's original MQTT constructor
+continues to connect successfully, so the installer deliberately leaves
+CANVAS's MQTT source unchanged.
+
+## CANVAS runtime compatibility
+
+The installer also applies two small Python 3 compatibility fixes to the
+downloaded CANVAS 3.0.3 source before installation:
+
+- initializes `self.canvas = None` so an early OctoPrint `ClientOpened` event
+  cannot access the attribute before CANVAS initialization creates it;
+- replaces the removed `platform.linux_distribution()` call with
+  `platform.freedesktop_os_release()`.
+
+Both fixes have been tested through a complete reinstall and subsequent
+OctoPrint restart.
 
 ## Thumbnail support
 

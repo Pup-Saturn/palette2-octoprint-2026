@@ -37,10 +37,39 @@ machine-specific configuration, or secrets.
 
 ## Why keep paho-mqtt 2.x
 
-Older community fixes often pinned `paho-mqtt<2`. The known-good 2026 setup can
-instead patch the CANVAS client constructor to request the v1 callback API.
-That keeps a current MQTT package while preserving CANVAS's legacy callback
-signatures.
+Older community fixes often pinned `paho-mqtt<2` or modified the CANVAS MQTT
+client constructor. Testing on the known-good 2026 setup confirmed that
+`paho-mqtt==2.1.0` still accepts the original legacy constructor and
+successfully connects using Callback API v1, while emitting a deprecation
+warning.
+
+The installer therefore pins `paho-mqtt==2.1.0` and deliberately leaves the
+Mosaic MQTT source unchanged.
+
+## CANVAS Python 3 runtime fixes
+
+Two additional problems occur in CANVAS 3.0.3 on the tested modern environment.
+
+First, CANVAS calls `platform.linux_distribution()`, an API that is no longer
+available in modern Python. The installer replaces that call with
+`platform.freedesktop_os_release()`.
+
+Second, an OctoPrint `ClientOpened` event can arrive before CANVAS has assigned
+`self.canvas`. The installer initializes `self.canvas = None` in
+`CanvasPlugin.__init__()` so the existing event-handler logic remains valid
+during early startup.
+
+Both patches are applied to the freshly downloaded upstream CANVAS source
+before pip installation.
+
+## Verification
+
+`./install.sh --check` performs a non-destructive preflight without requiring
+root privileges.
+
+After installation, `scripts/verify.sh` checks Palette/CANVAS imports and
+runtime health, while keeping known future OctoPrint compatibility warnings
+separate from current runtime failures.
 
 ## Licensing
 
