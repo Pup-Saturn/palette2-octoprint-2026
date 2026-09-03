@@ -3,7 +3,11 @@ set -Eeuo pipefail
 
 OCTOPRINT_VENV="${OCTOPRINT_VENV:-/opt/octopi/oprint}"
 OCTOPRINT_SERVICE="${OCTOPRINT_SERVICE:-octoprint}"
-LOG="${OCTOPRINT_LOG:-$HOME/.octoprint/logs/octoprint.log}"
+
+INVOKING_USER="${SUDO_USER:-$USER}"
+INVOKING_HOME="$(getent passwd "$INVOKING_USER" | cut -d: -f6)"
+OCTOPRINT_HOME="${OCTOPRINT_HOME:-$INVOKING_HOME/.octoprint}"
+LOG="${OCTOPRINT_LOG:-$OCTOPRINT_HOME/logs/octoprint.log}"
 
 echo "=== SERVICE ==="
 systemctl is-active "$OCTOPRINT_SERVICE"
