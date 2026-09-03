@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+CHECK_ONLY=0
+
+if [[ "${1:-}" == "--check" ]]; then
+    CHECK_ONLY=1
+elif [[ -n "${1:-}" ]]; then
+    echo "Usage: $0 [--check]"
+    exit 2
+fi
+
 PALETTE_URL="${PALETTE_URL:-https://gitlab.com/mosaic-mfg/palette-2-plugin/-/archive/3.0.1/palette-2-plugin-3.0.1.zip}"
 CANVAS_URL="${CANVAS_URL:-https://gitlab.com/mosaic-mfg/canvas-plugin/-/archive/3.0.3/canvas-plugin-3.0.3.zip}"
 OCTOPRINT_VENV="${OCTOPRINT_VENV:-/opt/octopi/oprint}"
@@ -9,16 +18,113 @@ INVOKING_HOME="$(getent passwd "$INVOKING_USER" | cut -d: -f6)"
 OCTOPRINT_HOME="${OCTOPRINT_HOME:-$INVOKING_HOME/.octoprint}"
 OCTOPRINT_SERVICE="${OCTOPRINT_SERVICE:-octoprint}"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-WORKDIR="$(mktemp -d)"
+WORKDIR=""
 STAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 
-cleanup() { rm -rf "$WORKDIR"; }
+cleanup() {
+    [[ -z "$WORKDIR" ]] || rm -rf "$WORKDIR"
+}
 trap cleanup EXIT
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { echo "ERROR: $*" >&2; exit 1; }
 
+preflight_check() {
+    local failed=0
+
+    echo "=== Palette 2 / CANVAS installer preflight ==="
+    echo
+    echo "Invoking user:     $INVOKING_USER"
+    echo "Invoking home:     $INVOKING_HOME"
+    echo "OctoPrint venv:    $OCTOPRINT_VENV"
+    echo "OctoPrint home:    $OCTOPRINT_HOME"
+    echo "OctoPrint service: $OCTOPRINT_SERVICE"
+
+    echo
+    echo "=== REQUIRED COMMANDS ==="
+    for cmd in bash curl unzip python3 getent systemctl mktemp cp chown tar; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            echo "OK: $cmd -> $(command -v "$cmd")"
+        else
+            echo "FAIL: missing command: $cmd"
+            failed=1
+        fi
+    done
+
+    echo
+    echo "=== OCTOPRINT ENVIRONMENT ==="
+    if [[ -x "$OCTOPRINT_VENV/bin/python" ]]; then
+        echo "OK: Python -> $("$OCTOPRINT_VENV/bin/python" --version 2>&1)"
+    else
+        echo "FAIL: OctoPrint Python not found at $OCTOPRINT_VENV/bin/python"
+        failed=1
+    fi
+
+    if [[ -x "$OCTOPRINT_VENV/bin/pip" ]]; then
+        echo "OK: pip -> $OCTOPRINT_VENV/bin/pip"
+    else
+        echo "FAIL: OctoPrint pip not found at $OCTOPRINT_VENV/bin/pip"
+        failed=1
+    fi
+
+    if systemctl cat "$OCTOPRINT_SERVICE" >/dev/null 2>&1; then
+        echo "OK: systemd service '$OCTOPRINT_SERVICE' exists"
+    else
+        echo "FAIL: systemd service '$OCTOPRINT_SERVICE' not found"
+        failed=1
+    fi
+
+    echo
+    echo "=== FILESYSTEM ==="
+    if [[ -d "$OCTOPRINT_HOME" ]]; then
+        echo "OK: OctoPrint home exists: $OCTOPRINT_HOME"
+    else
+        echo "WARN: OctoPrint home does not exist: $OCTOPRINT_HOME"
+    fi
+
+    echo
+    echo "=== MOSAIC DOWNLOADS ==="
+    for url in "$PALETTE_URL" "$CANVAS_URL"; do
+        if curl -fsIL --max-time 20 "$url" >/dev/null; then
+            echo "OK: reachable: $url"
+        else
+            echo "FAIL: cannot reach: $url"
+            failed=1
+        fi
+    done
+
+    echo
+    echo "=== REAL INSTALL WOULD ==="
+    echo "- Back up $OCTOPRINT_HOME"
+    echo "- Install patched Palette 2 3.0.1"
+    echo "- Install patched CANVAS 3.0.3"
+    echo "- Install the CANVAS thumbnail compatibility plugin"
+    echo "- Install the CANVAS theme compatibility plugin"
+    echo "- Restart '$OCTOPRINT_SERVICE'"
+    echo "- Run post-install verification"
+
+    echo
+    echo "No files were modified and no services were restarted."
+
+    if (( failed )); then
+        echo
+        echo "PRECHECK RESULT: FAILED"
+        return 1
+    fi
+
+    echo
+    echo "PRECHECK RESULT: PASSED"
+}
+
+if (( CHECK_ONLY )); then
+    preflight_check
+    exit $?
+fi
+
 [[ $EUID -eq 0 ]] || die "Run this installer with sudo."
+
+WORKDIR="$(mktemp -d)"
+
 [[ -x "$OCTOPRINT_VENV/bin/python" ]] || die "OctoPrint Python not found at $OCTOPRINT_VENV/bin/python"
 [[ -x "$OCTOPRINT_VENV/bin/pip" ]] || die "OctoPrint pip not found at $OCTOPRINT_VENV/bin/pip"
 
