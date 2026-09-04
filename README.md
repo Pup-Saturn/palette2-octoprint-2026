@@ -82,20 +82,18 @@ sudo OCTOPRINT_VENV=/path/to/oprint ./install.sh
 
 ## Security
 
-Do **not** commit:
+The installer does not require your OctoPrint API key or other account
+credentials. It downloads the original Mosaic plugin releases and installs
+the compatibility fixes locally on your OctoPrint system.
 
-- `/opt/octoprint-status/.env`
-- OctoPrint API keys
-- `~/.octoprint/config.yaml`
-- access-control databases
-- Wi-Fi credentials
-- TLS private keys
-- printer uploads
-- timelapses
-- logs
+Because installation modifies the OctoPrint Python environment and requires
+root privileges, `install.sh` creates a timestamped backup of the OctoPrint
+configuration before making changes. You are encouraged to review the script
+before running it with `sudo`.
 
-The project `.gitignore` blocks the common secret-bearing files, but review
-every commit before pushing.
+When reporting problems or sharing diagnostic information, do not publish
+OctoPrint API keys, passwords, `.env` files, `config.yaml`, TLS private keys,
+Wi-Fi credentials, or other secrets.
 
 ## The compatibility fixes
 
