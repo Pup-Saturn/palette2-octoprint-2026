@@ -170,9 +170,6 @@ Its reusable source should live at:
 plugins/canvas-theme-compat/
 ```
 
-The capture helper searches the active OctoPrint Python environment for custom
-theme packages and references to `Saturn CANVAS Theme`.
-
 ## Recovery
 
 See `docs/RECOVERY.md`.
